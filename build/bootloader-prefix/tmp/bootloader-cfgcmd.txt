@@ -1,0 +1,1 @@
+cmd='/usr/bin/cmake;-DSDKCONFIG=/home/oleh/Projects/esp/wifi-cam-robot/sdkconfig;-DIDF_PATH=/home/oleh/esp-idf;-DIDF_TARGET=esp32;-DPYTHON_DEPS_CHECKED=1;-DPYTHON=/home/oleh/.espressif/python_env/idf4.4_py3.8_env/bin/python;-DEXTRA_COMPONENT_DIRS=/home/oleh/esp-idf/components/bootloader;-DLEGACY_INCLUDE_COMMON_HEADERS=;-GNinja;<SOURCE_DIR><SOURCE_SUBDIR>'
