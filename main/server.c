@@ -15,7 +15,7 @@
  * handlers for the web server.
  */
 
-static const char *TAG = "example";
+static const char *TAG = "HTTP Server";
 
 typedef struct {
     char    *username;
@@ -142,17 +142,69 @@ static esp_err_t url_hit_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
+static esp_err_t ws_handler(httpd_req_t *req)
+{
+    if (req->method == HTTP_GET) {
+        ESP_LOGI(TAG, "Handshake done, the new connection was opened");
+        return ESP_OK;
+    }
+    httpd_ws_frame_t ws_pkt;
+    uint8_t *buf = NULL;
+    memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
+    ws_pkt.type = HTTPD_WS_TYPE_TEXT;
+    /* Set max_len = 0 to get the frame len */
+    esp_err_t ret = httpd_ws_recv_frame(req, &ws_pkt, 0);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "httpd_ws_recv_frame failed to get frame len with %d", ret);
+        return ret;
+    }
+    ESP_LOGI(TAG, "frame len is %d", ws_pkt.len);
+    if (ws_pkt.len) {
+        /* ws_pkt.len + 1 is for NULL termination as we are expecting a string */
+        buf = calloc(1, ws_pkt.len + 1);
+        if (buf == NULL) {
+            ESP_LOGE(TAG, "Failed to calloc memory for buf");
+            return ESP_ERR_NO_MEM;
+        }
+        ws_pkt.payload = buf;
+        /* Set max_len = ws_pkt.len to get the frame payload */
+        ret = httpd_ws_recv_frame(req, &ws_pkt, ws_pkt.len);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "httpd_ws_recv_frame failed with %d", ret);
+            free(buf);
+            return ret;
+        }
+        ESP_LOGI(TAG, "Got packet with message: %s", ws_pkt.payload);
+    }
+    ESP_LOGI(TAG, "Packet type: %d", ws_pkt.type);
+
+    ret = httpd_ws_send_frame(req, &ws_pkt);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "httpd_ws_send_frame failed with %d", ret);
+    }
+    free(buf);
+    return ret;
+}
+
 static const httpd_uri_t url_hit = {
     .uri       = "/*",
     .method    = HTTP_GET,
     .handler   = url_hit_handler
 };
 
-static const httpd_uri_t video = {
-    .uri       = "/video",
+/* static const httpd_uri_t video = { */
+/*     .uri       = "/video", */
+/*     .method    = HTTP_GET, */
+/*     .handler   = video_stream_httpd_handler */
+/* }; */
+
+static const httpd_uri_t ws = {
+    .uri       = "/ws",
     .method    = HTTP_GET,
-    .handler   = video_stream_httpd_handler
+    .handler   = ws_handler,
+    .is_websocket = true
 };
+
 static httpd_handle_t start_webserver(void)
 {
     httpd_handle_t server = NULL;
@@ -165,8 +217,12 @@ static httpd_handle_t start_webserver(void)
     if (httpd_start(&server, &config) == ESP_OK) {
         // Set URI handlers
         ESP_LOGI(TAG, "Registering URI handlers");
-        httpd_register_uri_handler(server, &video);
+        //httpd_register_uri_handler(server, &video);
+	httpd_register_uri_handler(server, &ws);
+
+	// Should be the last one registered
         httpd_register_uri_handler(server, &url_hit);
+
         // Authentication
         httpd_register_basic_auth(server);
 

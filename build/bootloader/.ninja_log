@@ -91,3 +91,4 @@
 169	317	1618882839564103419	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/ledc_periph.c.obj	e61d484d9397995d
 108	279	1618882839500102689	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/i2c_periph.c.obj	89ee10f8f629c2af
 239	392	1618882839636104239	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/mcpwm_periph.c.obj	a48901fbd0ddc7da
+0	3037	1621522409020097939	build.ninja	2e9dc172ea82ed32

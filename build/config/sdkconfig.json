@@ -394,7 +394,7 @@
     "HTTPD_MAX_REQ_HDR_LEN": 512,
     "HTTPD_MAX_URI_LEN": 512,
     "HTTPD_PURGE_BUF_LEN": 32,
-    "HTTPD_WS_SUPPORT": false,
+    "HTTPD_WS_SUPPORT": true,
     "IDF_CMAKE": true,
     "IDF_FIRMWARE_CHIP_ID": 0,
     "IDF_TARGET": "esp32",

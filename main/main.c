@@ -17,7 +17,7 @@
 #include "ota_flasher.h"
 #include "udp_logging.h"
 
-#define EXAMPLE_ESP_WIFI_SSID      "TP-LINK_344F6C"
+#define EXAMPLE_ESP_WIFI_SSID      "TP-Link_1A80"
 #define EXAMPLE_ESP_WIFI_PASS      "10101010260426"
 #define EXAMPLE_ESP_MAXIMUM_RETRY  5
 

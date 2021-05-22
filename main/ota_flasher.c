@@ -19,7 +19,7 @@
 //#define CHECK_OTA_APP_VERSION
 #define BUFFSIZE 1024
 #define HASH_LEN 32 /* SHA-256 digest length */
-#define FIRMWARE_UPDATE_URL "https://192.168.0.102:8000/wifi-cam-robot.bin"
+#define FIRMWARE_UPDATE_URL "https://192.168.0.102:8000/build/wifi-cam-robot.bin"
 
 static const char *TAG = "ota_flasher";
 /*an ota data write buffer ready to write to the flash*/
@@ -38,6 +38,7 @@ static void http_cleanup(esp_http_client_handle_t client)
 static void __attribute__((noreturn)) task_fatal_error(void)
 {
     ESP_LOGE(TAG, "Exiting task due to fatal error...");
+    led_blink_stop();
     (void)vTaskDelete(NULL);
 
     while (1) {
@@ -197,9 +198,9 @@ static void ota_task(void *pvParameter)
             binary_file_length += data_read;
             ESP_LOGD(TAG, "Written image length %d", binary_file_length);
         } else if (data_read == 0) {
-           /*
-            * As esp_http_client_read never returns negative error code, we rely on
-            * `errno` to check for underlying transport connectivity closure if any
+	    /*
+	     * As esp_http_client_read never returns negative error code, we rely on
+	     * `errno` to check for underlying transport connectivity closure if any
             */
             if (errno == ECONNRESET || errno == ENOTCONN) {
                 ESP_LOGE(TAG, "Connection closed, errno = %d", errno);
