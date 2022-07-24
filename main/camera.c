@@ -1,4 +1,4 @@
-#include <esp_event_loop.h>
+#include <esp_event.h>
 #include <esp_log.h>
 #include <esp_system.h>
 #include <nvs_flash.h>
@@ -59,15 +59,16 @@ static camera_config_t camera_config = {
     .pin_pclk = CAM_PIN_PCLK,
 
     //XCLK 20MHz or 10MHz for OV2640 double FPS (Experimental)
-    .xclk_freq_hz = 20000000,
+    .xclk_freq_hz = 26000000,
     .ledc_timer = LEDC_TIMER_0,
     .ledc_channel = LEDC_CHANNEL_0,
 
     .pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
-    .frame_size = FRAMESIZE_UXGA,    //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
+    .frame_size = FRAMESIZE_SVGA,    //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
 
     .jpeg_quality = 10, //0-63 lower number means higher quality
-    .fb_count = 2     //if more than one, i2s runs in continuous mode. Use only with JPEG
+    .fb_count = 2,       //if more than one, i2s runs in continuous mode. Use only with JPEG
+    .grab_mode = CAMERA_GRAB_WHEN_EMPTY,
 };
 
 static esp_err_t init_camera();
@@ -95,7 +96,10 @@ esp_err_t video_stream_httpd_handler(httpd_req_t *req){
     }
 
     while(true){
+        int64_t fb_get_start = esp_timer_get_time();
         fb = esp_camera_fb_get();
+        int64_t fb_get_end = esp_timer_get_time();
+
         if (!fb) {
             ESP_LOGE(TAG, "Camera capture failed");
             res = ESP_FAIL;
@@ -113,6 +117,8 @@ esp_err_t video_stream_httpd_handler(httpd_req_t *req){
             _jpg_buf = fb->buf;
         }
 
+        int64_t httpd_send_start = esp_timer_get_time();
+
         if(res == ESP_OK){
             res = httpd_resp_send_chunk(req, _STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY));
         }
@@ -127,6 +133,8 @@ esp_err_t video_stream_httpd_handler(httpd_req_t *req){
         if(fb->format != PIXFORMAT_JPEG){
             free(_jpg_buf);
         }
+        int64_t httpd_send_end = esp_timer_get_time();
+
         esp_camera_fb_return(fb);
         if(res != ESP_OK){
             break;
@@ -135,9 +143,11 @@ esp_err_t video_stream_httpd_handler(httpd_req_t *req){
         int64_t frame_time = fr_end - last_frame;
         last_frame = fr_end;
         frame_time /= 1000;
-        ESP_LOGI(TAG, "MJPG: %uKB %ums (%.1ffps)",
-            (uint32_t)(_jpg_buf_len/1024),
-            (uint32_t)frame_time, 1000.0 / (uint32_t)frame_time);
+        // ESP_LOGI(TAG, "FB_GET: %ums; \tHTTPD_SEND: %ums;\tMJPG: %uKB %ums\t(%.1ffps)",
+        //     (uint32_t)(fb_get_end - fb_get_start) / 1000,
+        //     (uint32_t)(httpd_send_end - httpd_send_start) / 1000,
+        //     (uint32_t)(_jpg_buf_len/1024),
+        //     (uint32_t)frame_time, 1000.0 / (uint32_t)frame_time);
     }
 
     last_frame = 0;

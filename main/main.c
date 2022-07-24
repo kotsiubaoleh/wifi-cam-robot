@@ -150,13 +150,21 @@ void app_main(void)
     
     wifi_init_sta();
     
-    udp_logging_init(udp_log_address, 1337, udp_logging_vprintf);
+    //udp_logging_init(udp_log_address, 1337, udp_logging_vprintf);
 
-    // Checks for new ota firmvare
-    init_ota_flasher();
+    // // Checks for new ota firmvare
+    // init_ota_flasher();
 
     // Start https server
     server_init();
+
+    gpio_config_t io_conf = {};
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    io_conf.pin_bit_mask = 1ULL << GPIO_NUM_4;
+    io_conf.pull_down_en = GPIO_PULLDOWN_ENABLE;
+    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    gpio_config(&io_conf);
 
     ESP_LOGI(TAG, "VERSION 2");
 }

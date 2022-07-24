@@ -1,0 +1,51 @@
+<html>
+
+<head>
+    <title>CamRobot</title>
+    <meta name="description" content="ESP32 Camera Robot">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <canvas id="camera_canvas" width="300" height="200"></canvas>
+        <div class="options-panel">
+            <ul class="options">
+                <li class="option">
+                    <label for="resolution" class="options-label">Frame size</label>
+                    <select name="resolution" id="resolutionSelect" class="dropdown">
+                        <option value="0">96x96</option>
+                        <option value="1">160x120 (QQVGA)</option>
+                        <option value="2">176x144 (QCIF)</option>
+                        <option value="3">240x176 (QVGA)</option>
+                        <option value="4">240x240</option>
+                        <option value="5">320x240 (QVGA)</option>
+                        <option value="6">400x296 (CIF)</option>
+                        <option value="7">480x320 (HVGA)</option>
+                        <option value="8">640x480 (VGA)</option>
+                        <option value="9">800x600 (SVGA)</option>
+                        <option value="10">1024x768 (XGA)</option>
+                        <option value="11">1280x720 (HD)</option>
+                        <option value="12">1280x1024 (SXGA)</option>
+                        <option value="13">1600x1200 (UXGA)</option>
+                    </select>
+                </li>
+
+                <li class="option">
+                    <label for="quality" class="options-label">Quality</label>
+                    <input type="range" name="quality">
+            </ul>
+
+        </div>
+        <div class="controls">
+            <button type="button" class="button" id="showOptionsBtn">
+                <span class="material-icons md-18">settings</span>
+                Show options
+            </button>
+        </div>
+    </div>
+</body>
+
+</html>
+

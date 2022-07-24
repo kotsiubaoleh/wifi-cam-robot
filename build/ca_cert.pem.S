@@ -1,4 +1,4 @@
-/* * Data converted from /home/oleh/Projects/esp/wifi-cam-robot/server_certs/ca_cert.pem
+/* * Data converted from /home/oleh/esp/wifi-cam-robot/server_certs/ca_cert.pem
  * (null byte appended)
  */
 .data
